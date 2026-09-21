@@ -491,14 +491,44 @@
 .slideshow .slick-list,.slideshow .slick-track,.slideshow .slick-slide{height:100%!important;}
 .slideshow .slick-slide{width:100%!important;float:none!important;left:0!important;top:0!important;
   position:relative!important;opacity:1!important;z-index:1!important;transition:none!important;display:block!important;}
-#offers_list .slick-list{width:100%!important;}
-#offers_list .slick-track{width:100%!important;transform:none!important;display:flex!important;flex-wrap:nowrap!important;}
-#offers_list .slick-slide{width:50%!important;float:none!important;flex:0 0 50%!important;
-  position:relative!important;left:0!important;transform:none!important;opacity:1!important;}
+/* 促銷活動輪播:對照參考網站的左右箭頭切換卡片互動,改成可運作的水平捲動輪播
+   (原本 slick.js 被拿掉了,所以用原生 scroll + snap 重新實作) */
+#offersViewport{
+  width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+}
+#offersViewport::-webkit-scrollbar{display:none;}
+#offersTrack{display:flex;flex-wrap:nowrap;gap:24px;}
+#offers_list .offer_wrap{
+  flex:0 0 calc(50% - 12px);
+  scroll-snap-align:start;
+  position:relative;
+}
+.offers_carousel{position:relative;}
+/* 箭頭外觀(圓形邊框＋雙線 chevron、prev/next 180度翻轉)沿用原網站既有的
+   .arrow/.arrow.inverse/.arrow.prev/.arrow.next 樣式,這裡只補兩件事:
+   1) z-index 蓋過卡片自己 z-index:200 的 .content 疊層,否則箭頭會被蓋住
+   2) 捲到頭尾時比照原站 .slick-disabled 的做法淡出、停用點擊 */
+.offers_carousel .arrow.slick-arrow{z-index:500;cursor:pointer;}
+.offers_carousel .arrow.slick-arrow.slick-disabled{pointer-events:none;}
+/* 圓點樣式(外框圈＋選中填色)同樣沿用原網站既有的 .pager ul li / :before /
+   .slick-active 樣式;實際可點擊範圍用 li 本身(原站的 button 是 display:none) */
+/* 原站標題文字在 .content(display:flex;flex-direction:column)裡沒有確實
+   stretch 撐滿寬度,標題較長時會超出卡片邊框(原站本身也有這問題)。
+   這裡強制標題寬度貼齊容器並允許換行,避免文字跑出卡片外。 */
+#offers_list .offer .content .title,
+#offers_list .offer .content .price_wrap{
+  width:100%!important;
+  max-width:100%!important;
+  align-self:stretch!important;
+  box-sizing:border-box;
+  overflow-wrap:break-word;
+  word-break:break-word;
+}
 @media (max-width:700px){
-  #offers_list .slick-track{display:block!important;}
-  #offers_list .slick-slide{width:100%!important;flex:none!important;}
-  #offers_list .slick-slide:nth-of-type(n+2){display:none!important;}
+  #offers_list .offer_wrap{flex:0 0 100%;}
+  #offersTrack{gap:16px;}
 }
 
   /* ==================== Chat Widget (花比) ==================== */
@@ -525,7 +555,7 @@
     overflow:hidden;
   }
   #cw_launcher.cw-hide{opacity:0;visibility:hidden;pointer-events:none;}
-  #cw_launcher img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+  #cw_launcher img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%;}
   #cw_launcher svg{transition:width .2s ease, height .2s ease;}
 
   #cw_panel{
@@ -579,7 +609,7 @@
     box-shadow:0 6px 16px rgba(0,0,0,.25);
     transition:width .25s ease, height .25s ease;
   }
-  .cw-welcome-avatar img{width:100%;height:100%;object-fit:cover;}
+  .cw-welcome-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
   .cw-welcome-title{font-family:"Noto Serif TC",serif;font-size:17px;font-weight:600;letter-spacing:-0.025em;line-height:1.5;color:#fff;margin-top:4px;}
   .cw-welcome-hr{width:100%;max-width:220px;height:1px;background:rgba(255,255,255,.18);margin:8px 0;}
   .cw-welcome-text{font-size:13px;color:rgba(255,255,255,.85);line-height:1.625;max-width:270px;}
@@ -600,7 +630,7 @@
     border-radius:50%;overflow:hidden;background:#fff;flex-shrink:0;
     transition:width .25s ease, height .25s ease;
   }
-  .cw-header-avatar img{width:100%;height:100%;object-fit:cover;}
+  .cw-header-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
   .cw-header .name{font-size:13.5px;font-weight:600;letter-spacing:-0.025em;line-height:1.25;}
   .cw-header .status{font-size:11px;line-height:1;opacity:.7;display:flex;align-items:center;gap:4px;}
   .cw-header .status::before{content:"";width:5px;height:5px;border-radius:50%;background:#3ddc84;}
@@ -620,7 +650,7 @@
     margin:0 auto 8px;
     transition:width .25s ease, height .25s ease;
   }
-  .cw-greeting-avatar img{width:100%;height:100%;object-fit:cover;}
+  .cw-greeting-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
   .cw-greeting-title{color:#fff;font-size:13px;font-weight:600;letter-spacing:-0.025em;line-height:1.25;margin-bottom:8px;}
   .cw-greeting-hr{width:70%;height:1px;background:rgba(255,255,255,.18);margin:0 auto 12px;}
   .cw-greeting-text{color:rgba(255,255,255,.85);font-size:12.5px;line-height:1.7;margin-bottom:12px;}
@@ -682,7 +712,7 @@
   .cw-msg-row-bot{margin-bottom:12px;}
   .cw-msg-bot-head{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
   .cw-msg-bot-avatar{width:24px;height:24px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#fff;}
-  .cw-msg-bot-avatar img{width:100%;height:100%;object-fit:cover;}
+  .cw-msg-bot-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
   .cw-msg-bot-name{font-size:12px;font-weight:600;color:var(--cw-dark);}
   .cw-msg-bot-time{font-size:11px;color:#a89a88;}
   .cw-msg-bot-text{margin-left:30px;font-size:13.5px;line-height:1.7;color:var(--cw-dark);white-space:pre-wrap;word-break:break-word;}
@@ -721,14 +751,14 @@
                     </div>
                                     <div id="guestaccount"><div class="desktop-login">
                                 <div id="login" class="open_social_login">
-                                    <a onclick="return pop('fbga-login-overlay')" href="javascript:;" class="clearfix open_popup">
+                                    <a href="javascript:;" class="clearfix open_popup">
                                         <span class="label">登入</span>
                                     </a>
                                  </div>
                              </div>
                              <div class="mobile-login">
                                 <div id="login" class="open_social_login">
-                                    <a onclick="return pop('fbga-login-overlay')" href="javascript:void(0)" class="clearfix open_popup">
+                                    <a href="javascript:void(0)" class="clearfix open_popup">
                                          <span class="sr-only">登入</span>
                                     </a>
                                  </div>
@@ -1024,7 +1054,7 @@
 				<div id="unconnected-ga-offer">
 					<h2></h2>
 					<p></p>
-					<a id="open-fbga" href="javascript:void(0)" onclick="return pop('fbga-login-overlay');"></a>
+					<a id="open-fbga" href="javascript:void(0)"></a>
 				</div>
 			</div></div>
 
@@ -1168,145 +1198,193 @@
       
       <div class="offers_carousel">
         
-			<div id="offers_list" class="offers_container slick-initialized slick-slider slick-dotted" data-websdk="Offers">
-          <div class="slick-list draggable"><div class="slick-track"><div class="offer_wrap item_wrap clearfix code__Cosmosapp2022 id__Best-Available-Rate even slick-slide slick-current slick-active" data-slick-index="0" role="group" id="slick-slide10" aria-describedby="slick-slide-control10" aria-label="1/8">
+			<div id="offers_list" class="offers_container" data-websdk="Offers">
+          <div class="slick-list" id="offersViewport">
+            <div class="slick-track" id="offersTrack">
+<div class="offer_wrap item_wrap clearfix code__Cosmosapp2022 id__Best-Available-Rate even" data-slick-index="0" role="group" id="slick-slide10" aria-label="1/8">
             <div class="offer item">
   <div class="thumb_wrap">
-    <a class="thumb lazy" href="#offers_detail_Best-Available-Rate_detail" data-fancybox="" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/f3fb9a05e4e225781a8262bbcdb799db.jpg)" tabindex="-1" aria-hidden="true" data-was-processed="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/f3fb9a05e4e225781a8262bbcdb799db.jpg&quot;);"></a>
+    <a class="thumb lazy" href="javascript:;" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/f3fb9a05e4e225781a8262bbcdb799db.jpg)" tabindex="-1" aria-hidden="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/f3fb9a05e4e225781a8262bbcdb799db.jpg&quot;);"></a>
   </div>
   <div class="content">
-    <a class="price_wrap" href="javascript:;" onclick="dEdgeBookingDecoration(&quot;https://redirect.fastbooking.com/DIRECTORY/preresa.phtml?style=DIRECT&amp;Hotelnames=ASIATWHTLTGarden&amp;rate=Best-Available-Rate&amp;FirstRoomName=Premier-Double&amp;FSTBKNGTrackLink=offers&amp;FirstDate=260922%3B1%3B1%3B0%3B0&amp;CurrencyLabel=TWD&amp;locale=zh_HK&quot;, '_blank')" tabindex="-1">
+    <a class="price_wrap" href="javascript:;" tabindex="-1">
       <span class="label">起價從</span>
       <span class="price"><span class="amount">2,908</span> <span class="currency">TWD</span></span>
     </a>
-    <a class="title" data-fancybox="" href="#offers_detail_Best-Available-Rate_detail" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">官網優惠專案(不含早)　　　　　　(即日起至2027/06/30)</span></a>
+    <a class="title" href="javascript:;" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">官網優惠專案(不含早)　　　　　　(即日起至2027/06/30)</span></a>
 
     <div class="btns_wrap">
                         <span class="book">
-                            <a href="javascript:;" onclick="dEdgeBookingDecoration(&quot;https://redirect.fastbooking.com/DIRECTORY/preresa.phtml?style=DIRECT&amp;Hotelnames=ASIATWHTLTGarden&amp;rate=Best-Available-Rate&amp;FirstRoomName=Premier-Double&amp;FSTBKNGTrackLink=offers&amp;FirstDate=260922%3B1%3B1%3B0%3B0&amp;CurrencyLabel=TWD&amp;locale=zh_HK&quot;, '_blank')" tabindex="0">立即預訂                            </a>
+                            <a href="javascript:;" tabindex="0">立即預訂                            </a>
                         </span>
-      <span class="info"><a data-fancybox="" href="#offers_detail_Best-Available-Rate_detail" class="info" aria-label="更多資訊 about 官網優惠專案(不含早)　　　　　　(即日起至2027/06/30)" tabindex="0">更多資訊</a></span>
+      <span class="info"><a href="javascript:;" class="info" aria-label="更多資訊 about 官網優惠專案(不含早)　　　　　　(即日起至2027/06/30)" tabindex="0">更多資訊</a></span>
     </div>
 
   </div>
 </div>
-<div id="offers_detail_Best-Available-Rate_detail" class="offer_details code__Cosmosapp2022 id__Best-Available-Rate even" style="display: none;">
-    <div class="offer_description_wrap">
-        <div class="offer_description_inner_wrap the_content">
-            <div class="thumb_wrap">
-                <div class="thumb lazy" data-src="https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/f3fb9a05e4e225781a8262bbcdb799db.jpg" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/f3fb9a05e4e225781a8262bbcdb799db.jpg&quot;);"></div>
-            </div>
-            <div class="offer_description">
-                <div class="title"><span class="aria-title" role="heading" aria-level="2">官網優惠專案(不含早)　　　　　　(即日起至2027/06/30)</span></div>
-
-                <div class="description" data-selectable="true"><p></p>
-<ul>
-<li>房價內含稅。</li>
-<li>免費無線網路。</li>
-<li>免費使用健身房。</li>
-<li>免費柑仔鋪取用乙次。</li>
-<li>每房贈送「旅艋舺 遊西門」古蹟紙雕乙份。(款式隨機，贈完為止)</li>
-<li>住客享天成餐旅大亨桌遊，現場加購優惠價每組$800元。</li>
-<li>提供免費停車場，停車位有限，恕無法提供車位保留服務。</li>
-</ul>
-<p>條件與規定</p>
-<ul>
-<li>入住時間:下午3點，退房時間:中午12點</li>
-<li>所有價格以新台幣計算。</li>
-<li>所有價格皆含稅但需另加10%服務費</li>
-<li>訂購前請仔細詳閱銷售條款。</li>
-<li>信用卡: American Express, Visa, Master Card, JCB, Union Pay(銀聯卡)</li>
-</ul>
-<p>聯合訂房中心：02-8978-6688</p></div>
-                <div class="btns_wrap">
-                    <span class="book"><a href="javascript:;" onclick="dEdgeBookingDecoration(&quot;https://redirect.fastbooking.com/DIRECTORY/preresa.phtml?style=DIRECT&amp;Hotelnames=ASIATWHTLTGarden&amp;rate=Best-Available-Rate&amp;FirstRoomName=Premier-Double&amp;FSTBKNGTrackLink=offers&amp;FirstDate=260922%3B1%3B1%3B0%3B0&amp;CurrencyLabel=TWD&amp;locale=zh_HK&quot;, '_blank')" tabindex="0">立即預訂</a></span>
-                  <a class="price_wrap" href="javascript:;" onclick="dEdgeBookingDecoration(&quot;https://redirect.fastbooking.com/DIRECTORY/preresa.phtml?style=DIRECT&amp;Hotelnames=ASIATWHTLTGarden&amp;rate=Best-Available-Rate&amp;FirstRoomName=Premier-Double&amp;FSTBKNGTrackLink=offers&amp;FirstDate=260922%3B1%3B1%3B0%3B0&amp;CurrencyLabel=TWD&amp;locale=zh_HK&quot;, '_blank')" tabindex="-1">
-                    <span class="label">最低起價為</span>
-                    <span class="price">
-                        <span class="amount">2,908</span>
-                        <span class="currency">TWD</span>
-                    </span>
-                  </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>          </div><div class="offer_wrap item_wrap clearfix code__GOGREEN2023 id__Love-Our-Environment odd slick-slide slick-active" data-slick-index="1" role="group" id="slick-slide11" aria-label="2/8">
+</div>
+<div class="offer_wrap item_wrap clearfix code__GOGREEN2023 id__Love-Our-Environment odd" data-slick-index="1" role="group" id="slick-slide11" aria-label="2/8">
             <div class="offer item">
   <div class="thumb_wrap">
-    <a class="thumb lazy" href="#offers_detail_Love-Our-Environment_detail" data-fancybox="" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/40428228fc47b2cc7643952d7e0ca3a8.jpg)" tabindex="-1" aria-hidden="true" data-was-processed="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/40428228fc47b2cc7643952d7e0ca3a8.jpg&quot;);"></a>
+    <a class="thumb lazy" href="javascript:;" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/40428228fc47b2cc7643952d7e0ca3a8.jpg)" tabindex="-1" aria-hidden="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/40428228fc47b2cc7643952d7e0ca3a8.jpg&quot;);"></a>
   </div>
   <div class="content">
-    <a class="price_wrap" href="javascript:;" onclick="dEdgeBookingDecoration(&quot;https://redirect.fastbooking.com/DIRECTORY/preresa.phtml?style=DIRECT&amp;Hotelnames=ASIATWHTLTGarden&amp;rate=Love-Our-Environment&amp;FirstRoomName=Premier-Double&amp;FSTBKNGTrackLink=offers&amp;FirstDate=260922%3B1%3B1%3B0%3B0&amp;CurrencyLabel=TWD&amp;locale=zh_HK&quot;, '_blank')" tabindex="-1">
+    <a class="price_wrap" href="javascript:;" tabindex="-1">
       <span class="label">起價從</span>
       <span class="price"><span class="amount">3,045</span> <span class="currency">TWD</span></span>
     </a>
-    <a class="title" data-fancybox="" href="#offers_detail_Love-Our-Environment_detail" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">環保愛地球住房優惠　　　　　　　　(無障礙安心住房國人限定)　　　　　　　　　　(即日起至2027/06/30)</span></a>
+    <a class="title" href="javascript:;" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">環保愛地球住房優惠　　　　　　　　(無障礙安心住房國人限定)　　　　　　　　　　(即日起至2027/06/30)</span></a>
 
     <div class="btns_wrap">
                         <span class="book">
-                            <a href="javascript:;" onclick="dEdgeBookingDecoration(&quot;https://redirect.fastbooking.com/DIRECTORY/preresa.phtml?style=DIRECT&amp;Hotelnames=ASIATWHTLTGarden&amp;rate=Love-Our-Environment&amp;FirstRoomName=Premier-Double&amp;FSTBKNGTrackLink=offers&amp;FirstDate=260922%3B1%3B1%3B0%3B0&amp;CurrencyLabel=TWD&amp;locale=zh_HK&quot;, '_blank')" tabindex="0">立即預訂                            </a>
+                            <a href="javascript:;" tabindex="0">立即預訂                            </a>
                         </span>
-      <span class="info"><a data-fancybox="" href="#offers_detail_Love-Our-Environment_detail" class="info" aria-label="更多資訊 about 環保愛地球住房優惠　　　　　　　　(無障礙安心住房國人限定)　　　　　　　　　　(即日起至2027/06/30)" tabindex="0">更多資訊</a></span>
+      <span class="info"><a href="javascript:;" class="info" aria-label="更多資訊 about 環保愛地球住房優惠　　　　　　　　(無障礙安心住房國人限定)　　　　　　　　　　(即日起至2027/06/30)" tabindex="0">更多資訊</a></span>
     </div>
 
   </div>
 </div>
-<div id="offers_detail_Love-Our-Environment_detail" class="offer_details code__GOGREEN2023 id__Love-Our-Environment odd" style="display: none;">
-    <div class="offer_description_wrap">
-        <div class="offer_description_inner_wrap the_content">
-            <div class="thumb_wrap">
-                <div class="thumb lazy" data-src="https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/40428228fc47b2cc7643952d7e0ca3a8.jpg" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/40428228fc47b2cc7643952d7e0ca3a8.jpg&quot;);"></div>
-            </div>
-            <div class="offer_description">
-                <div class="title"><span class="aria-title" role="heading" aria-level="2">環保愛地球住房優惠　　　　　　　　(無障礙安心住房國人限定)　　　　　　　　　　(即日起至2027/06/30)</span></div>
+</div>
+<div class="offer_wrap item_wrap clearfix code__0811 id__2026TDPASS even" data-slick-index="2" role="group" id="slick-slide12" aria-label="3/8">
+            <div class="offer item">
+  <div class="thumb_wrap">
+    <a class="thumb lazy" href="javascript:;" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/3ed3666c1104ab7915f232218673bc6c.jpg)" tabindex="-1" aria-hidden="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/3ed3666c1104ab7915f232218673bc6c.jpg&quot;);"></a>
+  </div>
+  <div class="content">
+    <a class="price_wrap" href="javascript:;" tabindex="-1">
+      <span class="label">起價從</span>
+      <span class="price"><span class="amount">3,363</span> <span class="currency">TWD</span></span>
+    </a>
+    <a class="title" href="javascript:;" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">大巨蛋好宿 PASS　　　　　　(即日起至2026/12/17)</span></a>
 
-                <div class="description" data-selectable="true"><p>注意事項：</p>
-<p>．本方案限持國民身分證、台灣護照或外僑居留證(非入台許可證)者入住，入住時需出示本人有效證件若無法出示，依飯店規定補足差價。</p>
-<p>．持入台許可證者恕不適用優惠。</p>
-<p>優惠內容：</p>
-<p>1.本專案每日限量<span>3</span>間，不得與其他優惠合併使用且不適用房型加價升等。<span></span></p>
-<p>2.雅緻客房(愛心房無障礙)不含早餐雙人住宿乙晚。<br>&nbsp; &nbsp;(無障礙客房採用無高低差的友善空間設計，浴室內未設置浴缸，並貼心備有輔助器材，提供更安全舒適的住宿體驗。)</p>
-<p>3.續住期間不提供打掃服務、更換毛巾及床組服務。</p>
-<p>4.住宿期間不提供Mini bar。</p>
-<p>5.不提供一次性備品(牙刷/牙膏/刮鬍刀等)及拖鞋。</p>
-<p>6.免費使用健身房。</p>
-<p>7.免費無線網路。</p>
-<p>8.備有免費停車場，停車位有限每房限停乙台，採先到先停恕無法提供車位保留服務。</p>
-<p>9.本優惠價格已含服務費。</p>
-<p>10.本優惠適用Cosmos CLUB會員累計。</p>
-<p>11.每房贈送「旅艋舺 遊西門」古蹟紙雕乙份。(款式隨機，贈完為止)</p>
-<p>12.住客享天成餐旅大亨桌遊，現場加購優惠價每組$800元。</p></div>
-                <div class="btns_wrap">
-                    <span class="book"><a href="javascript:;" onclick="dEdgeBookingDecoration(&quot;https://redirect.fastbooking.com/DIRECTORY/preresa.phtml?style=DIRECT&amp;Hotelnames=ASIATWHTLTGarden&amp;rate=Love-Our-Environment&amp;FirstRoomName=Premier-Double&amp;FSTBKNGTrackLink=offers&amp;FirstDate=260922%3B1%3B1%3B0%3B0&amp;CurrencyLabel=TWD&amp;locale=zh_HK&quot;, '_blank')" tabindex="0">立即預訂</a></span>
-                  <a class="price_wrap" href="javascript:;" onclick="dEdgeBookingDecoration(&quot;https://redirect.fastbooking.com/DIRECTORY/preresa.phtml?style=DIRECT&amp;Hotelnames=ASIATWHTLTGarden&amp;rate=Love-Our-Environment&amp;FirstRoomName=Premier-Double&amp;FSTBKNGTrackLink=offers&amp;FirstDate=260922%3B1%3B1%3B0%3B0&amp;CurrencyLabel=TWD&amp;locale=zh_HK&quot;, '_blank')" tabindex="-1">
-                    <span class="label">最低起價為</span>
-                    <span class="price">
-                        <span class="amount">3,045</span>
-                        <span class="currency">TWD</span>
-                    </span>
-                  </a>
-                </div>
-            </div>
-        </div>
+    <div class="btns_wrap">
+                        <span class="book">
+                            <a href="javascript:;" tabindex="-1">立即預訂                            </a>
+                        </span>
+      <span class="info"><a href="javascript:;" class="info" aria-label="更多資訊 about 大巨蛋好宿 PASS　　　　　　(即日起至2026/12/17)" tabindex="-1">更多資訊</a></span>
     </div>
-</div>          </div></div></div>
-          
-          
-          
-          
-          
-          
-          
-        <span class="sr-only slick-live-region" aria-live="polite"></span></div>
-			
-		        
-      </div>
-          <a class="arrow prev inverse slick-arrow link_button" href="javascript:;" role="button" aria-label="Previous" style=""><span></span></a>
-      <a class="arrow next inverse slick-arrow link_button" href="javascript:;" style="" role="button" aria-label="Next"><span></span></a>
+
+  </div>
+</div>
+</div>
+<div class="offer_wrap item_wrap clearfix code__Cosmosapp2022 id__Best-Available-Rate-With-BF odd" data-slick-index="3" role="group" id="slick-slide13" aria-label="4/8">
+            <div class="offer item">
+  <div class="thumb_wrap">
+    <a class="thumb lazy" href="javascript:;" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/5f618c767a9c08f9cbf7cf113773ba0f.jpg)" tabindex="-1" aria-hidden="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/5f618c767a9c08f9cbf7cf113773ba0f.jpg&quot;);"></a>
+  </div>
+  <div class="content">
+    <a class="price_wrap" href="javascript:;" tabindex="-1">
+      <span class="label">起價從</span>
+      <span class="price"><span class="amount">3,363</span> <span class="currency">TWD</span></span>
+    </a>
+    <a class="title" href="javascript:;" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">官網優惠專案(含早餐)　　　　　　(即日起至2027/06/30)</span></a>
+
+    <div class="btns_wrap">
+                        <span class="book">
+                            <a href="javascript:;" tabindex="-1">立即預訂                            </a>
+                        </span>
+      <span class="info"><a href="javascript:;" class="info" aria-label="更多資訊 about 官網優惠專案(含早餐)　　　　　　(即日起至2027/06/30)" tabindex="-1">更多資訊</a></span>
+    </div>
+
+  </div>
+</div>
+</div>
+<div class="offer_wrap item_wrap clearfix code__0109 id__2023-Cosmos-CLUB-Members-Only even" data-slick-index="4" role="group" id="slick-slide14" aria-label="5/8">
+            <div class="offer item">
+  <div class="thumb_wrap">
+    <a class="thumb lazy" href="javascript:;" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/edee8dfe05cdc92c637c9ec737a5c409.jpg)" tabindex="-1" aria-hidden="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/edee8dfe05cdc92c637c9ec737a5c409.jpg&quot;);"></a>
+  </div>
+  <div class="content">
+    <a class="price_wrap" href="javascript:;" tabindex="-1">
+      <span class="label">起價從</span>
+      <span class="price"><span class="amount">3,699</span> <span class="currency">TWD</span></span>
+    </a>
+    <a class="title" href="javascript:;" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">❣️Cosmos CLUB會員專屬禮遇❣️　　(即日起至2026/12/31)</span></a>
+
+    <div class="btns_wrap">
+                        <span class="book">
+                            <a href="javascript:;" tabindex="-1">立即預訂                            </a>
+                        </span>
+      <span class="info"><a href="javascript:;" class="info" aria-label="更多資訊 about ❣️Cosmos CLUB會員專屬禮遇❣️　　(即日起至2026/12/31)" tabindex="-1">更多資訊</a></span>
+    </div>
+
+  </div>
+</div>
+</div>
+<div class="offer_wrap item_wrap clearfix code__1111 id__2024-Happy-Hour odd" data-slick-index="5" role="group" id="slick-slide15" aria-label="6/8">
+            <div class="offer item">
+  <div class="thumb_wrap">
+    <a class="thumb lazy" href="javascript:;" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/655bc2ae48133c71f0a29daa8f06a14a.jpg)" tabindex="-1" aria-hidden="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/655bc2ae48133c71f0a29daa8f06a14a.jpg&quot;);"></a>
+  </div>
+  <div class="content">
+    <a class="price_wrap" href="javascript:;" tabindex="-1">
+      <span class="label">起價從</span>
+      <span class="price"><span class="amount">3,726</span> <span class="currency">TWD</span></span>
+    </a>
+    <a class="title" href="javascript:;" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">尊寵禮遇Happy Hour一泊二食住房優惠　　(即日起至2027/06/30)</span></a>
+
+    <div class="btns_wrap">
+                        <span class="book">
+                            <a href="javascript:;" tabindex="-1">立即預訂                            </a>
+                        </span>
+      <span class="info"><a href="javascript:;" class="info" aria-label="更多資訊 about 尊寵禮遇Happy Hour一泊二食住房優惠　　(即日起至2027/06/30)" tabindex="-1">更多資訊</a></span>
+    </div>
+
+  </div>
+</div>
+</div>
+<div class="offer_wrap item_wrap clearfix code__0713 id__2026-railway even" data-slick-index="6" role="group" id="slick-slide16" aria-label="7/8">
+            <div class="offer item">
+  <div class="thumb_wrap">
+    <a class="thumb lazy" href="javascript:;" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/f362630efb9961df29ef370e9d05a313.jpg)" tabindex="-1" aria-hidden="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/f362630efb9961df29ef370e9d05a313.jpg&quot;);"></a>
+  </div>
+  <div class="content">
+    <a class="price_wrap" href="javascript:;" tabindex="-1">
+      <span class="label">起價從</span>
+      <span class="price"><span class="amount">3,999</span> <span class="currency">TWD</span></span>
+    </a>
+    <a class="title" href="javascript:;" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">雙鐵旅遊・低碳同行住房專案　　　　　　　　　　　　　　　　　(即日起至2026年12月18日)</span></a>
+
+    <div class="btns_wrap">
+                        <span class="book">
+                            <a href="javascript:;" tabindex="-1">立即預訂                            </a>
+                        </span>
+      <span class="info"><a href="javascript:;" class="info" aria-label="更多資訊 about 雙鐵旅遊・低碳同行住房專案　　　　　　　　　　　　　　　　　(即日起至2026年12月18日)" tabindex="-1">更多資訊</a></span>
+    </div>
+
+  </div>
+</div>
+</div>
+<div class="offer_wrap item_wrap clearfix code__0102 id__light-luxury odd" data-slick-index="7" role="group" id="slick-slide17" aria-label="8/8">
+            <div class="offer item">
+  <div class="thumb_wrap">
+    <a class="thumb lazy" href="javascript:;" data-bg="url(https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/c203930e7137642c29be7b7a6eae45a2.jpg)" tabindex="-1" aria-hidden="true" style="background-image: url(&quot;https://mediastore.hotelcontent.net/677c7df1d25bf26e04c0c139beb53021/79521cdea3eff83/c203930e7137642c29be7b7a6eae45a2.jpg&quot;);"></a>
+  </div>
+  <div class="content">
+    <a class="price_wrap" href="javascript:;" tabindex="-1">
+      <span class="label">起價從</span>
+      <span class="price"><span class="amount">9,088</span> <span class="currency">TWD</span></span>
+    </a>
+    <a class="title" href="javascript:;" tabindex="-1"><span class="aria-title" role="heading" aria-level="2">輕奢寵愛套房住宿優惠　　　　　　　(即日起至2027/06/30)　　　　　　　</span></a>
+
+    <div class="btns_wrap">
+                        <span class="book">
+                            <a href="javascript:;" tabindex="-1">立即預訂                            </a>
+                        </span>
+      <span class="info"><a href="javascript:;" class="info" aria-label="更多資訊 about 輕奢寵愛套房住宿優惠　　　　　　　(即日起至2027/06/30)　　　　　　　" tabindex="-1">更多資訊</a></span>
+    </div>
+
+  </div>
+</div>
+</div>
+            </div>
+          </div>
+        </div>
+          <a id="offersPrev" class="arrow prev inverse slick-arrow link_button" href="javascript:;" role="button" aria-label="Previous"><span></span></a>
+      <a id="offersNext" class="arrow next inverse slick-arrow link_button" href="javascript:;" role="button" aria-label="Next"><span></span></a>
         </div>
         <div class="controls">
-      <div class="pager"><ul class="slick-dots" role="tablist" style=""><li class="slick-active" role="presentation"><button type="button" role="tab" id="slick-slide-control10" aria-controls="slick-slide10" aria-label="1 of 4" tabindex="0" aria-selected="true">1</button></li><li role="presentation"><button type="button" role="tab" id="slick-slide-control11" aria-controls="slick-slide12" aria-label="2 of 4" tabindex="-1">2</button></li><li role="presentation"><button type="button" role="tab" id="slick-slide-control12" aria-controls="slick-slide14" aria-label="3 of 4" tabindex="-1">3</button></li><li role="presentation"><button type="button" role="tab" id="slick-slide-control13" aria-controls="slick-slide16" aria-label="4 of 4" tabindex="-1">4</button></li></ul></div>
+      <div class="pager"><ul id="offersDots" class="slick-dots" role="tablist"></ul></div>
               <div class="view_all"><span class="info"><a href="https://www.taipeigarden.com.tw/promotions/" aria-label="查看所有優惠 about ">查看所有優惠</a></span></div>
           </div>
       </div>
@@ -1582,9 +1660,16 @@
   // 空白區域),corner 決定貼左下角或右下角,避開緊鄰的名稱／狀態文字
   // size 用 JS 已知的目標尺寸(而非量測 DOM),避免頭像有寬高 CSS transition
   // 時讀到過渡中間值導致數字閃現不準
-  function positionAvatarBadge(badgeEl, avatarEl, visible, corner, size){
+  function positionAvatarBadge(badgeEl, avatarEl, visible, corner, size, clipEl){
     if (!visible){ badgeEl.style.display = 'none'; return; }
     var r = avatarEl.getBoundingClientRect();
+    // 頭像若因聊天室內容捲動而被捲出可視範圍(部分或全部被裁掉),標籤要跟著隱藏,
+    // 不然標籤是 position:fixed 貼在頭像"當初算好的"座標上,會浮出聊天視窗外面
+    if (clipEl){
+      var cr = clipEl.getBoundingClientRect();
+      var inView = r.top < cr.bottom - 2 && r.bottom > cr.top + 2 && r.left < cr.right - 2 && r.right > cr.left + 2;
+      if (!inView){ badgeEl.style.display = 'none'; return; }
+    }
     var fx = corner === 'left' ? 0.14 : 0.86;
     badgeEl.textContent = size + '×' + size;
     badgeEl.style.left = (r.left + r.width * fx) + 'px';
@@ -1675,9 +1760,9 @@
     }
 
     // 頭像尺寸小標籤:點開 widget 後,目前可見畫面上的頭像旁顯示即時尺寸
-    positionAvatarBadge(welcomeAvatarBadge, welcomeAvatar, isOpen && !showingChat, 'right', launcherClosedSize);
-    positionAvatarBadge(headerAvatarBadge, headerAvatar, isOpen && showingChat, 'left', headerSize);
-    positionAvatarBadge(greetingAvatarBadge, greetingAvatar, isOpen && showingChat, 'right', cardSize);
+    positionAvatarBadge(welcomeAvatarBadge, welcomeAvatar, isOpen && !showingChat, 'right', launcherClosedSize, welcomeView);
+    positionAvatarBadge(headerAvatarBadge, headerAvatar, isOpen && showingChat, 'left', headerSize, null);
+    positionAvatarBadge(greetingAvatarBadge, greetingAvatar, isOpen && showingChat, 'right', cardSize, cwBody);
   }
 
   // 頭像有寬高 CSS transition、或字體換好造成版面位移時,補跑一次 render()
@@ -1855,6 +1940,109 @@
   window.addEventListener('scroll', update, {passive:true});
   window.addEventListener('resize', update);
   update();
+})();
+</script>
+
+<!-- 促銷活動輪播:左右箭頭／下方圓點切換卡片(對照參考網站的互動,原生 scroll 重新實作) -->
+<script>
+(function(){
+  var viewport = document.getElementById('offersViewport');
+  var track = document.getElementById('offersTrack');
+  var prevBtn = document.getElementById('offersPrev');
+  var nextBtn = document.getElementById('offersNext');
+  var dotsEl = document.getElementById('offersDots');
+  if (!viewport || !track || !prevBtn || !nextBtn || !dotsEl) return;
+
+  var cards = [].slice.call(track.querySelectorAll(':scope > .offer_wrap'));
+  if (!cards.length) return;
+
+  function itemsPerView(){ return window.innerWidth <= 700 ? 1 : 2; }
+  function pageCount(){ return Math.ceil(cards.length / itemsPerView()); }
+  function gap(){ return window.innerWidth <= 700 ? 16 : 24; }
+
+  // 用 getBoundingClientRect 差值換算捲動目標,不用 offsetLeft
+  // ——因為卡片有 position:relative 的祖先(.offers_carousel),offsetLeft 量到的
+  // 是相對那個祖先的距離,不是相對捲動容器,算出來的位置會是錯的。
+  function pageStartLeft(pageIndex){
+    var perView = itemsPerView();
+    var cardIndex = pageIndex * perView;
+    if (cardIndex >= cards.length) cardIndex = cards.length - 1;
+    var card = cards[cardIndex];
+    var cardRect = card.getBoundingClientRect();
+    var vpRect = viewport.getBoundingClientRect();
+    var target = viewport.scrollLeft + (cardRect.left - vpRect.left);
+    return Math.max(0, Math.min(target, viewport.scrollWidth - viewport.clientWidth));
+  }
+
+  function currentPage(){
+    var perView = itemsPerView();
+    var cardW = cards[0].getBoundingClientRect().width + gap();
+    var approxCardIndex = Math.round(viewport.scrollLeft / cardW);
+    return Math.min(pageCount() - 1, Math.round(approxCardIndex / perView));
+  }
+
+  function buildDots(){
+    dotsEl.innerHTML = '';
+    var n = pageCount();
+    for (var i = 0; i < n; i++){
+      var li = document.createElement('li');
+      li.setAttribute('role', 'presentation');
+      li.dataset.page = i; // 原站 .pager ul li 本身才是可視圓點,click 目標放這裡
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-label', (i + 1) + ' of ' + n);
+      li.appendChild(btn);
+      dotsEl.appendChild(li);
+    }
+  }
+
+  function updateControls(){
+    // 用「目前是第幾頁」判斷頭尾,而非直接比對 scrollLeft 像素值
+    // ——scroll-snap 在有些瀏覽器下初始位置不會精準落在 0,用像素門檻容易誤判。
+    var page = currentPage();
+    var atStart = page <= 0;
+    var atEnd = page >= pageCount() - 1;
+    prevBtn.setAttribute('aria-disabled', atStart ? 'true' : 'false');
+    nextBtn.setAttribute('aria-disabled', atEnd ? 'true' : 'false');
+    // 沿用原網站 slick 的停用樣式慣例(.arrow.slick-disabled{opacity:0})
+    prevBtn.classList.toggle('slick-disabled', atStart);
+    nextBtn.classList.toggle('slick-disabled', atEnd);
+
+    var dotLis = dotsEl.querySelectorAll('li');
+    dotLis.forEach(function(li, i){
+      var active = i === page;
+      li.classList.toggle('slick-active', active); // 原站樣式靠這個 class 決定填色
+      var b = li.querySelector('button');
+      b.setAttribute('aria-selected', active ? 'true' : 'false');
+      b.tabIndex = active ? 0 : -1;
+    });
+  }
+
+  function goToPage(pageIndex){
+    pageIndex = Math.max(0, Math.min(pageCount() - 1, pageIndex));
+    viewport.scrollTo({left: pageStartLeft(pageIndex), behavior: 'smooth'});
+  }
+
+  prevBtn.addEventListener('click', function(){ goToPage(currentPage() - 1); });
+  nextBtn.addEventListener('click', function(){ goToPage(currentPage() + 1); });
+  dotsEl.addEventListener('click', function(e){
+    var li = e.target.closest('li[data-page]');
+    if (li) goToPage(parseInt(li.dataset.page, 10));
+  });
+  viewport.addEventListener('scroll', function(){ requestAnimationFrame(updateControls); }, {passive:true});
+
+  var lastPerView = itemsPerView();
+  window.addEventListener('resize', function(){
+    if (itemsPerView() !== lastPerView){
+      lastPerView = itemsPerView();
+      buildDots();
+    }
+    updateControls();
+  });
+
+  buildDots();
+  updateControls();
 })();
 </script>
 
